@@ -1,0 +1,104 @@
+Que. What is Docker?
+- Docker is open source platform that package application and dependencies into container for easy portability, reproducibility, efficency, scalability. 
+- Docker container are created from docker file which has instruction to create container, eg, host OS, app dependency, code system tools system lib, etc
+- A Docker container is a lightweight, standalone, and executable software package that includes everything needed to run an application: code, runtime, system tools, system libraries, and settings
+-  Containers are designed to isolate applications and their dependencies, ensuring that they can run consistently across different environments, whether on a developer's local machine, a test server, or in production
+____________________________________________________________________________________________________________________
+Que. What is Docker container?
+- 
+- Note, container has base Operation system in form of base image which has system dependences, app lib, etc
+- COntainer create from Docker file --> Docker image --> Docker Container
+____________________________________________________________________________________________________________________
+Que.Why Containers are in lighweight?
+- Container are in lightweight in nature, because they do not have complete OS. And they use base OS on which they running on.
+- eg. if container is running on Ec2 instance then it will use base OS of Ec2 instance
+- Container are very easy to shift to move from one platform to other in form of Docker image, where we just need to run image to create container
+____________________________________________________________________________________________________________________
+Que. How to attach create and attach netowkr with frontend and backend container
+##### PROJECT: Two Tier Application  -- https://github.com/nitinjrock/two-tier-flask-app.git
+1.step: Created Bridge network
+- docker network create two-tier -d bridge  # create bridge network
+
+2.Step: create sql container & assign env varaibles
+- docker pull sql  --> this will pull sql image
+- docker run -d --name mysql --network two-tier -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=devops mysql --> run container and assign env variables
+
+3. Login to sql DB and create database as devops
+--- Below command are to create db and show created db
+Note -  once you inter in sql container run below command to login to sql
+- docker exec -it ded8309c7492 bash  --> used to login to sql container 
+-  mysql -u root -p  --> once you to inside container run this command to login to sql (password is root, which is define in above command)
+- show databases;  --> used to check created DB in container sql
+- create databases devops; --> this will create "devops" databases in sql
+
+4.Step: Create docker image from git repo above and create container
+- docker build -t two-tier-backend . 
+- docker run -d -p 5000:5000 --network two-tier -e MYSQL_HOST=mysql -e MYSQL_USER=root -e MYSQL_PASSWORD=root -e MYSQL_DB=devops two-tier-backend 
+- docker logs <container_id>  --> check container is runnig and able to communicate with DB container
+____________________________________________________________________________________________________________________
+Que. How you reduce size of Docker Image?
+--> using docker multistage build. here we can use multiple FROM instructor using Alise name and just copy req to next stage of Image. 
+--> it help to carry only required container and reduce image size
+
+Que. How you will check CPU/memory utilization of Containers?
+--> docker contianer stats  # this show Container running stats of CPU and memory, as like top command
+
+Que. How to check which process inside Container consume more resources?
+--> docker container top <container_id>  # it how top process consume more resources inside container
+
+Que. How to copy file from Docker host to container
+--> docker container cp /home/ubuntu/file_name container_id:/path_in_side_container
+********************************************************
+Q. why to use wget instead of ADD?
+ans: it adds an extra/unnecassry layer, it increases docker image size
+
+Que. Docker registry?
+- Docker Registry is Docker Hub registry where docker images will store as Public or Private
+- Cloud Provuder Registry, we can store images on Cloud Registry as below
+  Amazon Container Registry
+  Google Container Registry
+  Azure Container Registry
+
+******************************Docker Questions ******************************  -----> video 28min  praveen-kumar.repelle@capgemini.com
+Q. What is foreground & deatched mode?
+Q. Can we share docker wihtout using docker registry?
+or
+Q. Can you save docker in pendrive?
+or
+Q.can you create tar file of docker?
+Q. can we store docker images on github? if no then why???
+
+Q. docker image?
+Q. docker container?
+Q. Diff betw Docker rm and rmi ?
+
+Que. RUN & CMD diffrence? (Both are Docker file command)
+--> RUN: it execute command inside docker image. (eg: if you want to install package or create Directory inside of your Dockerimage then RUN will be used)
+--> CMD: we can run/execute command/script duing container creation not the image creation.
+
+Que. ENTRYPOINT & CMD diffrence?  (Both are docker file instructions)
+--> CMD: when you define CMD command in docker file (eg: CMD "java") and while creating/run Container & if you pass "ping google.com" then it will overwrite CMD command mention in Docker file & image and it will execute next command "ping google.com"
+--> ENTRYPOINT: When you define ENTRYPOINT in dockerfile &  created image, same command which you have passed in docker file will executed while creating container. You cannot run other entrypoint while creating contaier
+    ENTRYPOINT is used to define command in fix format which will not change while creating container. But in CMD you can change command while running conatiner
+____________________________________________________________________________________________________________________
+Dockerfile Instructor -- 
+
+FROM     --> Set the base image (eg. Ubuntu, Python, Nodejs, etc)
+WORKDIR  --> Set working Directory inside container. It copy app other files inside work dir. Also it execute other commands inside workdir (like RUN, CMD, ENTRYPOINT, etc)
+
+COPY     --> used to copy file from local to image. It just copy files and wont but wont extract any .zip files
+ADD      --> - It copy files from local to container while creating container via Image.
+             - Also it copy .taz, .zip file and extract while creating container. 
+		     - It copy file from URL also. eg: ADD http://app.tar.xy  /testdir 
+RUN      --> Execute commands (eg. install packages) during image build
+
+EXPOSE   --> Inform docker that container or application will listen to give port
+
+CMD      --> Provide default command to run when container starts 
+
+ENTRYPOINT --> Similar to CMD but preferred when running container as executable
+
+____________________________________________________________________________________________________________________
+
+Que. Choose the correct option to pull alpine image from the kk organization hosted at a private Registry at gcr.io
+--> docker pull gcr.io/kk/alpine   # here "gcr.io" registory name, "kk" is organization and "alpine" is image_name

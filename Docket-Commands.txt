@@ -1,0 +1,247 @@
+## Docker Architecture:- 
+Below 3 components are running in Docker Arch. 
+1. Docker Engine 
+- DOcker engine run Container
+2. Docker Demon --> Dockerd --> Containerd
+- Docker Demon/Dockerd/Containerd, this manage Container activitys
+3. Docker CLI  
+- Docker CLI work as "COmmand line Interface"
+
+Que. How container Get created ?
+1. User pass docker run command to create Container which will execute using Docker CLI
+2. Once command in passed, Docker Demon/Dockerd/Continerd, it create Container per image instructions
+3. Once Container is created it get created using DOcker Engine, which is used to run Container
+________________________________________________________________________________________________________________________
+Docker Comands and points:
+#  docker run -itd --name <container_name> <image_name or ID> /bin/bash
+Command options below:
+ run  --> to create container from docker image 
+  i  --> Interactive mode
+  t  --> terminal 
+ d --> run container in deatach mode (run container in background mode)
+ /bin/bash = create container in bash shell  
+ 
+## Docker Build Commands
+- docker build -t <image_name> .    --> this will create image of docker file where docker file is present in current dir (image_name  you can give per ur wish)
+eg - docker build -t two-tier-backend .  --> here we build image with name two-tier-backend and docker file present in present dir
+________________________________________________________________________________________________________________________
+## Create SQL DB contaier & create DB 
+
+- docker run -d -e MYSQL_ROOT_PASSWORD=root mysql  --> this will create docker container (this is env variable passed to create password: -e MYSQL_ROOT_PASSWORD=root) (mysql is image name)
+
+----------- Below command are to create db and show created db
+Note -  once you inter in sql container run below command to login to sql
+- docker exec -it ded8309c7492 bash  --> used to login to sql container 
+-  mysql -u root -p  --> once you to inside container run this command to login to sql (password is root, which is define in above command)
+- show databases;  --> used to check created DB in container sql
+- create databases devops; --> this will create "devops" databases in sql
+
+IMP Commads --
+- docker system prune --> delete all non-running containers, non used network, all dangling images 
+- docker images -qa  --> Show all images id which are present in system
+- docker rmi -f $(docker images -qa)  --> remove all images in one commands (here we have merge two commands)
+- docker images tag <image_name> <ur_docker_hub_user_name>/image_name:latest
+- docker login   --> used to login (provide Dockerhub credentials)
+- docker ps 
+- docker ps -a 
+- docker start <container_id or name>  --> start the container 
+- docker stop <container_id or name>  --> stop the container 
+- docker restart <container_id or name>  --> restart the container 
+- docker exec -it <container_id> /bin/bash   --> Go inside the container
+- docker exec -it <container_id> sh  --> this is used to go inside container, where bash is not install or slime and sh command work to go inside container
+- docker logs <container-id>    --> check container logs (know days there are tools which used to check/monitor logs, Tools: Graphana)
+- docker attach <container_id> ---> this will attach container logs and kep running on your server screen
+- docker rm  --> delete stoped container
+- docker rmi  --> delete docker image
+- docker inspect <cntainer_ID/Image_Name> --> It will describe detailed info of container, image, network, volumes etc
+- docker container stats --> show CPU/memory usage of all running contaiers only 
+IMP - docker container top <container_id>  # show top resource consume process inside container
+- docker commit <container_ID> <custome image name>  --> this will create custome image of running container
+- docker network ls --> Show docker networking details 
+- docker create network <bridge network> or <host network> or <none network>
+- docker network inspect <network name>  --> show network details, which container is using this netowkr
+- docker system info --> this will show docker info like containers, running containers no,stop container no,number of images on host & swarm status 
+- docker build -t java-app DockerFile_name ---> to Create/Build docker image
+- docker build -t java-app .  --> this will create/build docker image from docker file present in current dir. -t is used for image tag, here java-app is image tag
+- docker run -d -e MYSQL_ROOT_PASSWORD=root mysql ----> using -d docker container will run in background
+- docker run -d --name=myapp --hostname=webapp image_name  ---> --hostname is used to set container host name (its container inside host name)
+- docker container cp /home/ubuntu/file_name container_id:/path_in_side_container  # Copy file from Host to cotainer (source path: /home/ubuntu/file_name) (Destination path: container_id:/path_in_side_container)
+- docker export <container-name> > testcontainer.tar  ---> this will create tar file of any running container, which can copy to other host and run container with below commands
+- docker image import testcontainer.tar newimage:latest ---> this will create image from .tar file 
+
+
+- Docker port mapping:  docker run --itd -p 5050:8080 --name dev_jenkins jenkins/jenkins /bin/bash
+(5050 is Docker host VM port {VM port should be unique }  // 8080: container port / apploication defuld port)
+Docker folder/Dir structure: Docker has dir sturcture for container, image, vloume, network etc  (Path: cd /var/lib/docker)
+________________________________________________________________________________________________________________________
+Container Logs check commands:
+- docker logs <container_id>
+- docker logs <container_id> --timestamps
+- docker logs <container_id> --since (or --until) YYYY-MM-DD
+- docker logs <container_id> --tail N  (The --tail flag will show the last N lines of logs:)
+- docker logs <container_id> | grep -i error
+- docker attach <container_id> -------------> this command will attach container terminal with your terminal and show running logs on container (No need to run log command every time)
+________________________________________________________________________________________________________________________
+Docker Networking: (When you install docker, by default it will create 3 networks)
+- ** NOTE: Below network are also know as Network drivers
+    i. Bridge network: This network will play main role for whole docker system, which help container to communicate with each other 
+   ii. host network:
+      - this network help to host to container communication or container to host communication. 
+      - Container use host IP address - in this network Container uses Host IP address
+      - Port open in container are directly open to host (eg: if we assign port 5000:5000 then this port will open for host also)
+      - There is no network isolation between container and host	  
+   iii. null : No sence of creating container in null network 
+   iv. MACVLAN : (this are out dated netowkr - which is used in Docker Sware)
+   v. IPVLAN : (this are out dated netowkr - which is used in Docker Sware)
+  - docker network ls --> will display docker network info
+- docker network create <network_name> -d brigde  --> create your own bridge network (Network name - any u can give) (here -d is know as network drive)
+
+# Docker Network Commands:
+- docker network ls  --> List docker network
+- docker network create mynetwork -d bridge --> Create bridge network and mynetwork is name of created network
+- docker network rm <network_id>  --> use to delete network, just provide network id, you can get id with "docker network ls"
+- docker network inspect <network_id> --> used to check which containers using this network
+
+NOTE - If we create container without specify netowkr, it use defauld host Bridge network and when we attach we created Bridge network, then Container will have two Bridge network attachd
+     - So to avoid we can first create netowkr and while creating container attach netowkr during container creation / not after creating container
+________________________________________________________________________________________________________________________
+****************************** Docker File Options & Structure:*****************************
+Dockerfile Instructions:
+
+1. FROM: define the base image, Dockerfile always starts with FROM parameter/instruction. this is the smallest Dockerfile
+(min number of docker layers)
+2. MAINTAINER : description of dockerfile, ownner name/email address .
+3. RUN:  you execute a command (linux)/script during image creation (not the container creation), in real we use RUN to download code dependancy
+4. WORKDIR: set directory as a working directory/present working directory/home directory
+5. COPY: copy/download the file/folder but only FROM DOKCER HOST VM (source) to docker image (destination)
+6. ADD: copy/download the file/folder FROM DOKCER HOST VM/WEB URL/INTETNET (source) to docker image (destination)
+7. ENTRYPOINT: ENTRYPOINT is similar to CMD, using ENTRYPOINT we can run/execute command/script duing container creation not the image creation.
+8. EXPOSE: expose default application/container port (not port forwarding/port mapping)
+vi Dockerfile
+EXPOSE 8080
+Q. Can we have multiple "FROM" in dockerfile?
+ans: yes, multistage dockerfile
+________________________________________________________________________________________________________________________
+***************************** Docker Volume & Storage ******************************************
+# Docker Volume: In docker when we create container, there should be place where data of container should be stored. 
+               For this purpose docker Voulmes are created
+             - Note: When we create container default data is stored within container and if we restart/delete container data will loss, so volume is required
+			 - we can create volume during creating container with docker file
+			 - Docker volumes are also shared within container (eg. one container to another container)
+			 - With help of Volume if we delete or remove container, data storage will still available in volume
+			 
+# Docker Volume command:
+- docker volume create my_volume1  (this will create docker volume.. Note: It is just created, not attached to container)
+- docker inspect my_volume1  (this will show volume path on create on host /var/lib/docker/volume/my_volume1/_data)
+- docker volume inspect volume_name (Show same details of volume as above)
+- docker volume ls (list the created volumes)
+- docker volume rm volume_name (it remove the volume)
+- docker volume prune (remove all unused volumes which are not used by any containers)
+- docker run -itd --name mysql --network two-tier -v my-data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=devops mysql 
+  in above command we have attach my-data volume which we created on host and attached to container path where sql data store
+  (eg: my-data:/var/lib/mysql --- "mydata" is volume created and "/var/lib/mysql" this is container path where data store on container, this data will store on our voulme on host and it wont delete, we can attach this volume to new sql container and retrive data)
+
+IMP: Mount Volume as ReadOnly access - Below command we have specify "readonly" which attach volume as readonly
+docker run -itd --name mysql --network two-tier -v my-data:/var/lib/mysql,readonly <image_name>  
+
+Note: in Bind mount - Create xyz dir on host and attach path container volume path
+Eg: docker run -itd --name mysql --network two-tier -v /home/ubuntu/xyz:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=devops mysql
+
+# Types of Docker Voulme:
+ 1. Docker Volume - Persistent storage managed by Docker in path /var/lib/docker/volume (Managed by Docker)
+ 2. Bind mount    - User/you can map specific host path to container  ------------------ (Managed by uses)
+ 3. tmpfs         - Temporary in-memory storage, data loss on container stop -----------(Managed by Docker)
+ 
+ 
+Q. Where docker volume is stored?
+--> /var/lib/docker/volume
+- Docker volume is used to prevet data from container, in case if we restart, stop container there is chance to loss of data, so docker volume is used
+- This volumes are stores in part of host filesystem 
+- name pipes volume(mount): it is used communicate between docker host and containers
+--> command to map volume (docker -v /home/mount/data:/var/lib/mysql/data)
+
+##Lab to create container by using volume in docker run command as below:
+1 Step: docker pull jenkins:2.60.3  (pull Jenkins image form docker hub)
+2 Step: docker run --name myJenkins  -v volume_name:/var/jenkins_home -p 8080:8080 -p 50000:50000 jenkins
+                 (-p 8080:8080 this will access port 8080 on local system)
+				 (-p 50000:50000, this port is used for API services)
+				 (--name myJenkins, is contaier name)
+				 (-v volume_name:/var/jenkins_home, this will fetch data from Jenkins path /var/jenkins_home to volume)
+3. Step: Create docker container by using same volume and just change ports as showned in below command and in this way we can share volume with other contaier
+________________________________________________________________________________________________________________________
+
+*************************** DOCKER COMPOSE ******************************
+Why Docker Compose? (yaml - yet another markup language)
+- If we need to setup complex application by running multiple services on multiple Container, it is better way to use Docker Compose 
+- With Docker Compose we can crete configuration file in yaml or yaml  format (docker-compose.yml) 
+
+docker-compose.yaml
+________________________________________________________________________________________________________________________
+********************************* Dockek Swarm **************************************
+Why Docker Swarm?
+- Running docker containers on single host which is good for Devlopment & Testing purpose but it is not good for production as there will be single pointt of failure of host 
+- Docker Swarm will take care of distributing app services in to saprate host for high availability and load balancing 
+
+# Steps to setup Swarm cluster: (Eg. one manager node and two worker nodes)
+- Need to install docker on all 3 nodes
+- docker system info | grep -i swarm --> show docker system info
+- docker swarm init --> it will assign node as manager node & also it will generate token which need to run on worker nodes
+- docker node ls --> it list node attach with swarm 
+- docker swarm join-token worker --> It will generate token if we need to add any node at any movement .. just run generated tooken on node which need to join-token
+- docker node update --availability drain worker_name --> put worker node in drain status , means not in use
+- docker node update --availability active worker_name --> it bring node in active state and working mode
+- docker node rm worker_naame --> remove node from cluster
+- docker swarm leave --> worker node will leave swarm and removed from cluster (run this on node which you want to leave)
+- docker node promote worker1 --> this will promote workernode to manager / make it manager node
+
+## MultiStage build  Docker file
+- Using Multistage docker file we can redure size of docker file. 
+- Multistage build allow to use multiple FROM statemet in docker file, where each FROM will start new file and carry required compressed dependences from previous FROM statement
+- You can define alise in 1st FROM stagement and use this alise name in second FROM statement, which will compress 1st FROM statement base image and carry to second image
+- This help to reduce docker file size
+
+*************************************************** Harware Virtualization vs Software Virtualization
+1. There in no OS concept in Docker(Software virtualization)
+2, there is no kernel conepct in docker, docker uses kernel of host operating system only to run the processes.
+3. bootup time is very less in docker, it increases the application availability
+4. dockers are lightweight (b'cas it contains only application related binary and library files), if something goes with container, we can easily spin up new containers.
+5. Resource oprimization
+
+________________________________________________________________________________________________________________________
+##### PROJECT: Two Tier Application  -- https://github.com/nitinjrock/two-tier-flask-app.git
+1.step: Created Bridge network
+- docker network create two-tier -d bridge  # create bridge network
+
+2.Step: create sql container & assign env varaibles
+- docker pull mysql  --> this will pull sql image
+- docker run -d --name mysql --network two-tier -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=devops mysql --> run container and assign env variables
+
+3. Login to sql DB and create database as devops
+--- Below command are to create db and show created db
+Note -  once you inter in sql container run below command to login to sql
+- docker exec -it ded8309c7492 bash  --> used to login to sql container 
+-  mysql -u root -p  --> once you to inside container run this command to login to sql (password is root, which is define in above command)
+- show databases;  --> used to check created DB in container sql
+- create databases devops; --> this will create "devops" databases in sql
+- use devops  ---> this will use devops DB
+- select * from messages;  --> this will show data added to your devops db under messages table
+
+4.Step: Create docker image from git repo above and create container
+- docker build -t two-tier-backend . 
+- docker run -d -p 5000:5000 --network two-tier -e MYSQL_HOST=mysql -e MYSQL_USER=root -e MYSQL_PASSWORD=root -e MYSQL_DB=devops two-tier-backend 
+- docker logs <container_id>  --> check container is runnig and able to communicate with DB container
+
+5. Step: Attach Docker volume to sql container
+Note - There are two types of Voulme 1.Docker named voulme (which you can create docker volume and attach), 2. You can direct attach any host machine path in run command
+- docker run -d --name mysql --network two-tier -v /home/ubuntu/two-tier-flask-app/db_voulme_me_created:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=devops mysql
+
+________________________________________________________________________________________________________________________
+## Docker Image Management ##
+1. Dockerfile
+2. Dockerfile Instructions
+3. Create efficient image
+4. Docker image CLI
+5. Pull, Push, Delete image
+6. Inspect Image
+7. Tag Images
+8. Dispaly Layer
